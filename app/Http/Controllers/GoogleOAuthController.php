@@ -3,18 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\IntegrationAccount;
-use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
+use Laravel\Socialite\Two\AbstractProvider;
 
 class GoogleOAuthController extends Controller
 {
     // 1) Start OAuth (behind 'auth')
-    public function redirect(Request $request)
+    public function redirect(Request $request): RedirectResponse
     {
         $user = $request->user();
         $state = (string) Str::uuid();
@@ -22,7 +23,7 @@ class GoogleOAuthController extends Controller
         // Map state -> user_id for a short time
         Cache::put("oauth:google:state:{$state}", $user->id, now()->addMinutes(10));
 
-        /** @var \Laravel\Socialite\Two\AbstractProvider $provider */
+        /** @var AbstractProvider $provider */
         $provider = Socialite::driver('google');
 
         // Ask for offline access (refresh token) + any optional params
@@ -40,7 +41,7 @@ class GoogleOAuthController extends Controller
     }
 
     // 2) Google callback (public; no cookie / session expected)
-    public function callback(Request $request)
+    public function callback(Request $request): RedirectResponse
     {
         // Recover user identity from the state
         $state = (string) $request->query('state', '');
@@ -49,7 +50,7 @@ class GoogleOAuthController extends Controller
             return redirect()->to(config('app.url') . '/calendar?google=error_state');
         }
 
-        /** @var \Laravel\Socialite\Two\AbstractProvider $provider */
+        /** @var AbstractProvider $provider */
         $provider = Socialite::driver('google');
 
 
@@ -88,7 +89,7 @@ class GoogleOAuthController extends Controller
     {
         $account = IntegrationAccount::where([
             'user_id'  => Auth::id(),
-            'provider' => 'google',
+            'provider' => 'google'
         ])->whereNull('revoked_at')->first();
 
         if (!$account) return response()->json(['connected' => false], 200);
