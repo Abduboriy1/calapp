@@ -32,8 +32,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/integrations', [GoogleCalendarController::class, 'index'])->name('integrations.index');
 
     // OAuth
-    Route::get('/integrations/google/redirect', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
-    Route::get('/integrations/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
+//    Route::get('/integrations/google/redirect', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
+//    Route::get('/integrations/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
 
     // Manage
     Route::post('/integrations/google/revoke', [GoogleAuthController::class, 'revoke'])->name('google.revoke');
